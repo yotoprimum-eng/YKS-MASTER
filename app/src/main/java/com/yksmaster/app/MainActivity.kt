@@ -109,8 +109,19 @@ fun YksApp(prefs: android.content.SharedPreferences) {
                     "Ana Sayfa" -> HomePage(name, school, daysLeft, finished, topics.size, exams, target,
                         onNavigate = { page = it }, onAddExam = { showExamDialog = true })
                     "YKS Sayacı" -> CountdownPage(daysLeft, examDate.toString())
-                    "Konu Takibi" -> TopicPage(topics) { id -> topics = topics.map { if (it.id == id) it.copy(done = !it.done) else it } }
-                    "Haftalık Program" -> WeeklyPage()
+                    "Konu Takibi" -> TopicPage(topics) { id ->
+    val updatedTopics = topics.map {
+        if (it.id == id) it.copy(done = !it.done) else it
+    }
+
+    topics = updatedTopics
+
+    val changedTopic = updatedTopics.first { it.id == id }
+
+    prefs.edit()
+        .putBoolean("topic_${id}", changedTopic.done)
+        .apply()
+}                  "Haftalık Program" -> WeeklyPage()
                     "Deneme Takibi" -> ExamPage(exams, onAdd = { showExamDialog = true })
                     else -> HomePage(name, school, daysLeft, finished, topics.size, exams, target, { page = it }, { showExamDialog = true })
                 }
